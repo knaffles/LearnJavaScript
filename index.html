@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+      * { padding: 0; margin: 0; }
+      canvas { background: #eee; display: block; margin: 100px auto 0; }
+      p { text-align: center; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="480" height="320"></canvas>
+<p><strong>SCORE: <span id="score">0</span></strong></p>
+
+<script>
+  var canvas = document.getElementById('myCanvas');
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'red';
+
+  var ballRadius = 10;
+  var x = canvas.width / 2;
+  var y = canvas.height - 30;
+  var dx = 2;
+  var dy = -2;
+
+  var paddleHeight = 10;
+  var paddleWidth = 75;
+  var paddlex = (canvas.width - paddleWidth);
+
+  var rightPressed = false;
+  var leftPressed = false;
+
+  var brickRowCount = 5;
+  var brickColumnCount = 3;
+  var brickWidth = 75;
+  var brickHeight = 20;
+  var brickPadding = 10;
+  var brickOffsetTop = 30;
+  var brickOffsetLeft = 30;
+
+  var score = 0;
+
+  var bricks = [];
+  for (i = 0; i < brickRowCount; i++) {
+    bricks[i] = [];
+    for (j = 0; j < brickColumnCount; j++) {
+      bricks[i][j] = { x: 0, y: 0, status: 1};
+    }
+  }
+
+  function drawBricks() {
+    var winCount = 0;
+    for (i = 0; i < brickRowCount; i++) {
+      for (j = 0; j < brickColumnCount; j++) {
+        if (bricks[i][j].status == 1) {
+          var brickx = brickOffsetLeft + i * brickPadding + i * brickWidth;
+          var bricky = brickOffsetTop + j * brickPadding + j * brickHeight;
+          bricks[i][j].x = brickx;
+          bricks[i][j].y = bricky;
+          ctx.beginPath();
+          ctx.rect(
+            brickx,
+            bricky,
+            brickWidth,
+            brickHeight
+          );
+          ctx.fill();
+          ctx.closePath();
+        } else {
+          winCount++;
+        }
+      }
+    }
+
+    if (winCount == brickRowCount * brickColumnCount) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  function detectCollisions() {
+    for (i = 0; i < brickRowCount; i++) {
+      for (j = 0; j < brickColumnCount; j++) {
+        brick = bricks[i][j];
+        if (brick.status == 1) {
+          if(x > brick.x && x < brick.x + brickWidth && y > brick.y && y < brick.y + brickHeight) {
+            dy = -dy;
+            brick.status = 0;
+            score++;
+            var theScore = document.getElementById('score');
+            theScore.innerHTML = score;
+          }
+        }
+      }
+    }
+  }
+
+  function randomHex() {
+    return '#'+Math.floor(Math.random()*16777215).toString(16);
+  }
+
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddlex, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!drawBricks()) {
+      alert("You Won");
+      clearInterval(gameInterval);
+    }
+    drawBricks();
+    drawBall();
+    drawPaddle();
+    detectCollisions();
+
+    if (y + dy + ballRadius > canvas.height) {
+      if (x > paddlex && x < (paddlex + paddleWidth)) {
+        dy = -dy
+      } else {
+        alert("Game Over!");
+        clearInterval(gameInterval);
+      }
+    } else if (y + dy - ballRadius < 0) {
+      dy = -dy;
+      // ctx.fillStyle = randomHex();
+    }
+    if (x + dx + ballRadius > canvas.width || x + dx - ballRadius < 0) {
+      dx = -dx;
+      // ctx.fillStyle = randomHex();
+    }
+    if (leftPressed && paddlex > 0) {
+      paddlex -= 4;
+    } else if (rightPressed && paddlex < canvas.width - paddleWidth) {
+      paddlex += 4;
+    }
+
+    x += dx;
+    y += dy;
+  }
+
+  function keyDownHandler(e) {
+    if (e.keyCode == 37) {
+      leftPressed = true;
+    } else if (e.keyCode == 39) {
+      rightPressed = true;
+    }
+  }
+
+  function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = false;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = false;
+    }
+  }
+
+  document.addEventListener("keydown", keyDownHandler, false);
+  document.addEventListener("keyup", keyUpHandler, false);
+  var gameInterval = setInterval(draw, 10);
+</script>
+
+</body>
+</html>

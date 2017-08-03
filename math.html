@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Math Bombs</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <style type="text/css">
+    body {
+      font-family: 'Open Sans', sans-serif;
+    }
+    #container {
+      max-width: 740px;
+      margin: 30px auto 0;
+    }
+    #game-container {
+      background: #eee;
+      float: left;
+      width: 540px;
+      height: 540px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #game {
+      width: 500px;
+      height: 500px;
+      position: relative;
+    }
+    #feedback {
+      color: green;
+      font-weight: bold;
+      font-size: 0;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transition: all .5s;
+      z-index: 10;
+    }
+    #feedback.show {
+      opacity: 1;
+      font-size: 60px;
+    }
+    #feedback.stars {
+      font-size: 120px;
+    }
+    #feedback button {
+      background: green;
+      border: none;
+      color: white;
+      font-size: 20px;
+      border-radius: 3px;
+      padding: 10px 15px;
+    }
+    #feedback button:hover {
+      background: #B1861A;
+      cursor: pointer; 
+    }
+    #status {
+      float: left;
+      width: 200px;
+      padding-left: 20px;
+      box-sizing: border-box;
+    }
+    #score {
+      font-size: 36px;
+      color: #07a;
+    }
+    #stars {
+      color: green;
+      font-size: 30px;
+      margin-top: 20px;
+    }
+    .equation {
+      background: #AA5F00;
+      border-radius: 3px;
+      color: white;
+      font-size: 20px;
+      display: inline-block;
+      position: absolute;
+      top: 10px;
+      padding: 5px 10px;
+    }
+    #answers {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+    .answer {
+      background: #07a;
+      border-radius: 3px;
+      color: white;
+      font-size: 20px;
+      float: left;
+      width: 23.5%;
+      margin-right: 2%;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 15px 0;
+      &;
+    }
+    .answer:hover {
+      cursor: pointer;
+      background: #015275;
+    }
+    .answer:last-child {
+      margin-right: 0;
+    }
+    .answer .fa {
+      font-size: 20px;
+    }
+  </style>
+
+</head>
+<body>
+<div id="container">
+  <div id="game-container">
+    <div id="game">
+      <div id="feedback"></div>
+      <div id="answers"></div>
+    </div>
+  </div>
+  <div id="status">
+    <p><strong>MATH BOMBS!</strong></p>
+    <small>Click the correct answer before the equation reaches the bottom of the screen.</small>
+    <div id="score">Score: <span></span></div>
+    <div id="stars"></div>
+  </div>
+</div>
+</div>
+
+
+<script>
+// Variables
+var difficulty        = 5; // Possible values are 0, 5, or 10
+var difficultyIndex   = 0;
+var difficultyMatrix  = [
+  {
+    difficulty        : 0,
+    actualDifficulty  : 5,
+    speed             : 25,
+    nextEquation      : 200
+  },
+  {
+    difficulty        : 5,
+    actualDifficulty  : 10,
+    speed             : 20,
+    nextEquation      : 150
+  },
+  {
+    difficulty        : 10,
+    actualDifficulty  : 15,
+    speed             : 15,
+    nextEquation      : 100
+  }
+];
+
+var equations         = []; // The equation integers and answer
+var equationDiv       = []; // The equation HTML object
+var answers           = [];
+var gameWidth         = (document.getElementById('game')).clientWidth;
+var gameHeight        = (document.getElementById('game')).clientHeight;
+var score             = 0;
+var starCount         = 0;
+
+// Find the difficultyIndex
+for (var i = difficultyMatrix.length - 1; i >= 0; i--) {
+  if (difficulty === difficultyMatrix[i].difficulty) {
+    difficultyIndex = i;
+    break;
+  }
+};
+
+// One function to rule them all. Everything is in support of the play() function.
+
+function play() {
+  starCount = 3;
+
+  if (equations.length === 0) {
+    equations[0] = new Equation();
+    equations[0].displayEquation();
+  }
+
+  answers = equations[0].generateBadAnswers();
+  answers = shuffleArray(answers);
+  displayAnswers(answers);
+  window.thisLevel = setInterval(moveEquation, difficultyMatrix[difficultyIndex].speed);
+}
+
+play();
+
+// ** Everything below here supports play().
+
+
+
+// Define the Equation object
+function Equation() {
+  this.int1 = getRandomIntInclusive(1, difficultyMatrix[difficultyIndex].actualDifficulty);
+  this.int2 = getRandomIntInclusive(1, difficultyMatrix[difficultyIndex].actualDifficulty);
+  this.answer = this.int1 + this.int2;
+
+  // Draw the equation on the screen
+  this.displayEquation = function() {
+    var gameDiv = document.getElementById('game');
+    var equationIndex = equationDiv.length;
+
+    // Generate the content
+    equationDiv.push(document.createElement('div'));
+    equationDiv[equationIndex].classList.add('equation');
+    var equationText = document.createTextNode(this.int1 + ' + ' + this.int2);
+
+    equationDiv[equationIndex].appendChild(equationText);
+    gameDiv.appendChild(equationDiv[equationIndex]);
+    
+
+    // Generate a random position
+    var equationPos = getRandomIntInclusive(0, gameWidth - equationDiv[equationIndex].clientWidth);
+    equationDiv[equationIndex].style.left = equationPos + 'px';
+  }
+
+  // Generate three random incorrect answers.
+  // We pass the correct answer so that we can first assign it as an answer options.
+  this.generateBadAnswers = function() {
+    var count = 0;
+    var answersArray = [];
+
+    // First assign the correct answer
+    answersArray[0] = this.answer;
+
+    do {
+      // Generate a random number between 1 and the upper end of the difficulty scale.
+      var badAnswer = getRandomIntInclusive(1, difficultyMatrix[difficultyIndex].actualDifficulty * 2);
+
+      // If the random answer is not in the answersArray already, add it to the array.
+      if (answersArray.indexOf(badAnswer) === -1) {
+        count++;
+        answersArray[count] = badAnswer;
+      }
+    } while (answersArray.length < 4);
+
+    return answersArray;
+  }
+}
+
+// Display answer options on the screen
+function displayAnswers(answersArray) {
+  var currentIndex = answersArray.length - 1;
+  var answersDiv = document.getElementById('answers');
+
+  do {
+    var answerOption = document.createElement('div');
+    var answerText = document.createTextNode(answersArray[currentIndex]);
+
+    answerOption.classList.add('answer');
+    answerOption.appendChild(answerText);
+    answerOption.addEventListener('click', checkAnswer);
+
+    answersDiv.appendChild(answerOption);
+    
+    currentIndex--;
+  } while (currentIndex >= 0);
+}
+
+// Animate the equation
+function moveEquation() {
+  var currentIndex = 0;
+
+  while (currentIndex < equationDiv.length) {
+    if (equationDiv[currentIndex].style.top) {
+      var currentTop = parseInt(equationDiv[currentIndex].style.top);
+      if (currentTop === difficultyMatrix[difficultyIndex].nextEquation) {
+        equations.push(new Equation());
+        equations[equations.length - 1].displayEquation();
+      }
+
+      equationDiv[currentIndex].style.top = currentTop + 1 + 'px';
+      if (equationDiv[currentIndex].offsetTop >= gameHeight - (equationDiv[currentIndex].clientHeight + document.getElementById('answers').clientHeight)) {
+        gameOver();
+      } 
+    } else {
+      equationDiv[currentIndex].style.top = '10px';
+    }
+
+    currentIndex++;
+  }
+}
+
+function clearScreen() {
+  var theAnswers = document.getElementById('answers');
+  while (theAnswers.firstChild) {
+    theAnswers.removeChild(theAnswers.firstChild);
+  }
+
+  var theEquation = document.getElementsByClassName('equation');
+  theEquation[0].parentNode.removeChild(theEquation[0]);
+}
+
+// Compare the user's input to the correct answer
+function checkAnswer(e) {
+  var target = e.target;
+  if (target.innerText == equations[0].answer) {
+    clearInterval(thisLevel);
+    removeAnswerListeners();
+    incrementScore();
+    showStars();
+
+    // Pop the zeroth equation div and equation
+    equationDiv.shift();
+    equations.shift();
+
+    // Remove the stars and play again
+    setTimeout(function() {
+      feedback.classList.remove('show', 'stars');
+      clearScreen();
+      play();
+    }, 1750);
+  } else {
+    tryAgain(target);
+  }
+}
+
+function removeAnswerListeners() {
+  var currentIndex = answers.length - 1;
+  var answersDiv = document.getElementById('answers');
+
+  do {
+    answersDiv.children[currentIndex].removeEventListener('click', checkAnswer);    
+    currentIndex--;
+  } while (currentIndex >= 0);
+}
+
+function gameOver() {
+  clearInterval(thisLevel);
+  removeAnswerListeners();
+
+  var snd = new Audio("kaboom.mp3");
+  snd.play();
+
+  var feedback = document.getElementById('feedback');
+  var gameOver = document.createElement('div');
+
+  feedback.innerHTML = '';
+  gameOver.innerHTML = 'Game Over';
+
+  feedback.appendChild(gameOver);
+  feedback.classList.add('show');
+
+  var reset = document.createElement('button');
+  reset.innerHTML = 'Start Over';
+  reset.addEventListener('click', function() { window.location.reload(true) });
+  feedback.appendChild(reset);
+}
+
+function incrementScore() {
+  score += starCount;
+  var theScore = document.getElementById('score').getElementsByTagName('span')[0];
+  theScore.innerText = score;
+}
+
+function tryAgain(selectedAnswer) {
+  var nope = makeIcon('times');
+
+  selectedAnswer.style.background = 'red';
+  starCount--;
+  selectedAnswer.removeEventListener('click', checkAnswer);
+
+  selectedAnswer.innerHTML = '';
+  selectedAnswer.appendChild(nope);
+}
+
+function showStars() {
+  var feedbackDiv = document.getElementById('feedback');
+  var starsDiv = document.getElementById('stars');
+
+  feedback.innerHTML = '';
+
+  for (i = 1; i <= starCount; i++) {
+    var star = makeIcon('star');
+    feedbackDiv.appendChild(star);
+    starsDiv.appendChild(star.cloneNode());
+  }
+
+  feedback.classList.add('show', 'stars');
+}
+
+
+/*
+ * Utility Functions
+ * These are otherwise generic functions which just make some operations
+ * simple for us.
+ */
+
+// Randomize the order of an array
+function shuffleArray(theArray) {
+  var currentIndex = theArray.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = theArray[currentIndex];
+    theArray[currentIndex] = theArray[randomIndex];
+    theArray[randomIndex] = temporaryValue;
+  }
+
+  return theArray;
+}
+ 
+// Returns a random integer between min (included) and max (included)
+// Using Math.round() will give you a non-uniform distribution!
+function getRandomIntInclusive(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Make an icon
+function makeIcon(icon) {
+  var iconSpan = document.createElement('span');
+  iconSpan.classList.add('fa', 'fa-' + icon);
+  return iconSpan;
+}
+
+</script>  
+</body>
+</html>

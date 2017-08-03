@@ -1,0 +1,43 @@
+body {
+  margin: 20px auto;
+  max-width: 1024px;
+}
+
+form {
+  margin-bottom: 30px;
+}
+
+.positive {
+  color: black;
+}
+
+.negative {
+  color: red;
+}
+
+.table-budget {
+  font-size: 12px;
+}
+
+.table-budget > tbody > tr > td,
+.table-budget > thead > tr > th {
+  padding: 4px;
+}
+
+.table-budget > thead > tr > th:nth-child(n+2),
+.table-budget > tbody > tr > td:nth-child(n+2) {
+  width: 110px;
+  text-align: right;
+}
+
+.totals td {
+  border-top: 1px solid black;
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: 800px;
+    margin: 30px auto;
+  }
+}
