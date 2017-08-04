@@ -21,3 +21,8 @@ function writeCategory(data) {
     Envelope : data.Envelope
   });
 }
+
+// Get all categories.
+function getCategories() {
+  return firebase.database().ref('category').once('value')
+}

@@ -389,10 +389,12 @@
     "forms.less",
     "buttons.less",
     "responsive-utilities.less",
+    "navs.less",
+    "navbar.less",
     "modals.less"
   ],
   "js": [
     "modal.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=63e9cdff4b20f49c1a21b1584d7e9a0a"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=b0fa3ca72a030a4300133015d4b41ada"
 }

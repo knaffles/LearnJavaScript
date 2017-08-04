@@ -1,6 +1,3 @@
-//TODO
-// Make an initial pass to convert months to numbers and remove commas from all numbers
-
 var budgetLookup = {
   file: './data/categories.json',
   categories: [],
@@ -64,6 +61,16 @@ var budget = {
   file: './data/budget.json',
   rows: [],
 
+  // Convert months and years to integers and then remove commas and convert amounts to floats.
+  cleanData: function() {
+    for (var i = 0; i < this.rows.length; i++) {
+      this.rows[i].Month  = parseInt(this.rows[i].Month);
+      this.rows[i].Year   = parseInt(this.rows[i].Year);
+      this.rows[i].Amount = this.rows[i].Amount.replace(/,/g, ''); // Remove commas.
+      this.rows[i].Amount = parseFloat(this.rows[i].Amount);
+    }
+  },
+
   // Does the budget have any entries for this category?
   hasCategory: function(category, year) {
     var result = this.rows.filter(function(element) {
@@ -111,11 +118,11 @@ var budget = {
   getCategoryYTD: function(category, month, year) {
     var budgetYTD = this.rows.reduce(function(sum, element) {
       if (
-        element.Category        === category        &&
-        parseInt(element.Month) <=  parseInt(month) &&
-        element.Year            === year
+        element.Category  === category &&
+        element.Month     <=  month    &&
+        element.Year      === year
       ) {
-        return sum + parseFloat(element.Amount);
+        return sum + element.Amount;
       } else {
         return sum;
       }
@@ -129,13 +136,24 @@ var transactions = {
   file: './data/data.json',
   rows: [],
 
+  // Remove commas and convert amounts to floats.
+  cleanData: function() {
+    for (var i = 0; i < this.rows.length; i++) {
+      // We are assuming that .Amount comes in as a float.
+      // this.rows[i].Amount = this.rows[i].Amount.replace(/,/g, ''); // Remove commas.
+      this.rows[i].Amount = parseFloat(this.rows[i].Amount);
+    }
+  },
+
   // Get all the categories associated with all transactions in a given year.
   getUniqueCategories: function(month, year) {
     // Reduce the transactions and sum the total for each category.
 
     var result = this.rows.reduce(function(allCategories, transaction) {
-      var thisMonth = transaction['Date'].split('/')[0];
-      var thisYear = transaction['Date'].split('/')[2];
+      var parsedDate = parseDate(transaction['Date']),
+          thisMonth  = parsedDate.month,
+          thisYear   = parsedDate.year;
+
       if (allCategories.indexOf(transaction.Category) > -1) {
         return allCategories;
       } else {
@@ -152,9 +170,10 @@ var transactions = {
 
   getTransactionsInMonthYear: function(category, month, year) {
     var dataSet = this.rows.filter(function(transaction) {
-      var thisMonth = transaction['Date'].split('/')[0];
-      var thisYear = transaction['Date'].split('/')[2];
-      var categoryFamily = [category];
+      var parsedDate     = parseDate(transaction['Date']),
+          thisMonth      = parsedDate.month,
+          thisYear       = parsedDate.year,
+          categoryFamily = [category];
 
       // Is the category a parent (top-level)?
       // If so, get all of its children, and when testing the categories below,
@@ -203,15 +222,15 @@ var transactions = {
 
       if (val['Transaction Type'] == 'debit') {
         if (catType == 'Expense') {
-          sum += parseFloat(val.Amount);
+          sum += val.Amount;
         } else if (catType == 'Income') {
-          sum -= parseFloat(val.Amount);
+          sum -= val.Amount;
         }
       } else {
         if (catType == 'Expense') {
-          sum -= parseFloat(val.Amount);
+          sum -= val.Amount;
         } else if (catType == 'Income') {
-          sum += parseFloat(val.Amount);
+          sum += val.Amount;
         }
       }
       
@@ -243,8 +262,6 @@ var transactions = {
 }
 
 var table = {
-  file: './data/data.json',
-  transactions: [],
 
   filterToMonth: function(filters) {
     var budgetMonth       = 0,
@@ -256,10 +273,10 @@ var table = {
 
     for (var key in filters) {
       if (filters[key].id == 'budget__month') {
-        budgetMonth = filters[key].val;
+        budgetMonth = parseInt(filters[key].val);
       }
       if (filters[key].id == 'budget__year') {
-        budgetYear = filters[key].val;
+        budgetYear = parseInt(filters[key].val);
       }
     }
 
@@ -297,15 +314,15 @@ var table = {
       var catEnvelope = budgetLookup.isEnvelope(theCategory);
       if (catEnvelope) {
         // Calculate the entire year budget
-        var envBudget = budget.getCategoryYTD(theCategory, '12', budgetYear);
+        var envBudget = budget.getCategoryYTD(theCategory, 12, budgetYear);
 
         // Calculate the amount spend YTD
         var envActualYTD = catActualYTD;
 
         // Calculate any overage
         var envOverage = 0;
-        if (parseFloat(envActualYTD) > parseFloat(envBudget)) {
-          envOverage = parseFloat(envBudget) - parseFloat(envActualYTD);
+        if (envActualYTD > envBudget) {
+          envOverage = envBudget - envActualYTD;
         }
 
         // Reset actual and budget amounts for the Expenses table.
@@ -419,8 +436,9 @@ var table = {
 
     // Sort and then render.
     finalExpenses = transactions.sort(finalExpenses, 'fullCategory');
-    finalIncome = transactions.sort(finalIncome, 'fullCategory');
+    finalIncome   = transactions.sort(finalIncome, 'fullCategory');
     finalEnvelope = transactions.sort(finalEnvelope, 'fullCategory');
+
     this.renderBudgetTable(finalExpenses, budgetMonth, budgetYear, 'expenses');
     this.renderBudgetTable(finalIncome, budgetMonth, budgetYear, 'income');
     this.renderEnvelopeTable(finalEnvelope, budgetMonth, budgetYear);
@@ -428,14 +446,14 @@ var table = {
 
     // Calculate income vs expense
     // TODO come up with a better way to get these values
-    var expensesDiff  = $('#expenses .totals td:nth-child(4)').text();
-    var incomeDiff    = $('#income .totals td:nth-child(4)').text();
-    var totalDiff     = parseFloat(incomeDiff) + parseFloat(expensesDiff);
+    var expensesDiff  = parseFloat($('#expenses .totals td:nth-child(4)').text());
+    var incomeDiff    = parseFloat($('#income .totals td:nth-child(4)').text());
+    var totalDiff     = incomeDiff + expensesDiff;
     
-    var expensesDiffYTD  = $('#expenses .totals td:nth-child(7)').text();
-    var incomeDiffYTD    = $('#income .totals td:nth-child(7)').text();
-    var totalOverage     = $('#envelope .totals td:last-child').text();
-    var totalDiffYTD     = parseFloat(incomeDiffYTD) + parseFloat(expensesDiffYTD) + parseFloat(totalOverage);
+    var expensesDiffYTD  = parseFloat($('#expenses .totals td:nth-child(7)').text());
+    var incomeDiffYTD    = parseFloat($('#income .totals td:nth-child(7)').text());
+    var totalOverage     = parseFloat($('#envelope .totals td:last-child').text());
+    var totalDiffYTD     = incomeDiffYTD + expensesDiffYTD + totalOverage;
 
     // Clear the over-under table.
     $('#over-under tbody').html('');
@@ -454,10 +472,9 @@ var table = {
   },
 
   filterTo: function(filters) {
-    var render = this.renderTransactions;
-    var getSum = this.getSum;
+    console.log(filters);
     var filterSet = [];
-    var total = transactions.getSum(filterSet);
+    var total = 0;
 
     if (filters.YTD == 'ytd') {
       filterSet = transactions.getTransactionsYTD(filters.Category, filters.Month, filters.Year);
@@ -466,6 +483,7 @@ var table = {
     }
 
     filterSet = transactions.sort(filterSet, 'Date');
+    total = transactions.getSum(filterSet);
 
     this.renderTransactions(filterSet, total);
 
@@ -521,12 +539,12 @@ var table = {
 
       categoryLink = buildCategoryLink(category, fullCategory, month, year);
 
-      total.budget        += parseFloat(budget);
-      total.actual        += parseFloat(actual);
-      total.difference    += parseFloat(difference);
-      total.YTD           += parseFloat(YTD);
-      total.budgetYTD     += parseFloat(budgetYTD);
-      total.differenceYTD += parseFloat(differenceYTD);
+      total.budget        += budget;
+      total.actual        += actual;
+      total.difference    += difference;
+      total.YTD           += YTD;
+      total.budgetYTD     += budgetYTD;
+      total.differenceYTD += differenceYTD;
 
       var row = $('<tr></tr>');
       row.append('<td>' + categoryLink      + '</td>');
@@ -570,9 +588,9 @@ var table = {
 
       categoryLink = buildCategoryLink(category, fullCategory, month, year);
 
-      total.budget  += parseFloat(budget);
-      total.YTD     += parseFloat(YTD);
-      total.overage += parseFloat(overage);
+      total.budget  += budget;
+      total.YTD     += YTD;
+      total.overage += overage;
 
       var row = $('<tr></tr>');
       row.append('<td>' + categoryLink + '</td>');
@@ -612,7 +630,7 @@ var table = {
 };
 
 function buildCategoryLink(category, fullCategory, month, year) {
-  var url = '/transactions/' + cleanMe(category) + '/' + cleanMe(month) + '/' + cleanMe(year);
+  var url = '/transactions/' + cleanMe(category) + '/' + month + '/' + year;
   var urlYTD = url + '/ytd';
   return '<a data-category="' + category + '" href="' + url + '" class="category-link">' + fullCategory + '</a> <a data-category="' + category + '" href="' + urlYTD + '" class="category-link">(YTD)</a>';
 }
@@ -626,7 +644,7 @@ function roundTwoDigits(aNumber) {
 }
 
 function formatData(aNumber) {
-  if (parseFloat(aNumber) < 0) {
+  if (aNumber < 0) {
     return '<span class="negative">' + roundTwoDigits(aNumber) + '</span>'
   } else {
     return '<span class="positive">' + roundTwoDigits(aNumber) + '</span>'
@@ -647,6 +665,18 @@ function getFilters($form) {
   return filters;
 }
 
+function parseDate(dateString) {
+  var month = dateString.split('/')[0],
+      year = dateString.split('/')[2];
+
+  var result = {
+    month: parseInt(month),
+    year:  parseInt(year)
+  }
+
+  return result;
+}
+
 
 // This is where everything really begins.
 //-----------------------------------------------------------------------------
@@ -659,8 +689,8 @@ function init() {
     var filters = {};
 
     filters.Category  = $(this).data('category');
-    filters.Month     = pathComponents[3];
-    filters.Year      = pathComponents[4];
+    filters.Month     = parseInt(pathComponents[3]);
+    filters.Year      = parseInt(pathComponents[4]);
     filters.YTD       = pathComponents[5];
 
     table.filterTo(filters);
@@ -674,8 +704,9 @@ function init() {
 
 // Don't do anything until the budget and all transactions have been fetched.
 //-----------------------------------------------------------------------------
-$.getJSON(budget.file, function(data) {
+var main = $.getJSON(budget.file, function(data) {
   budget.rows = data;
+  budget.cleanData();
 
   // TODO - convert to use .when
   // Build the budget lookup list.
@@ -684,13 +715,10 @@ $.getJSON(budget.file, function(data) {
 
     $.getJSON(transactions.file, function(data) {
       transactions.rows = data;
+      transactions.cleanData();
     
-      $.getJSON(table.file, function(data) {
-        table.transactions = data;
-
-        // Kick everything off.
-        init();
-      })
+      // Kick everything off.
+      init();
     })
   });
 });
