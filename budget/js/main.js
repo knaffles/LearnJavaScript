@@ -319,6 +319,9 @@ var table = {
         // Calculate the amount spend YTD
         var envActualYTD = catActualYTD;
 
+        // Calculat amount of envelope budget remaining.
+        var envRemaining = envBudget - envActualYTD;
+
         // Calculate any overage
         var envOverage = 0;
         if (envActualYTD > envBudget) {
@@ -336,6 +339,7 @@ var table = {
           category:     theCategory,
           YTD:          envActualYTD,
           budget:       envBudget,
+          remaining:    envRemaining,
           overage:      envOverage
         });
       }
@@ -472,7 +476,6 @@ var table = {
   },
 
   filterTo: function(filters) {
-    console.log(filters);
     var filterSet = [];
     var total = 0;
 
@@ -572,9 +575,10 @@ var table = {
 
   renderEnvelopeTable: function(dataSet, month, year) {
     var total = {
-      budget:   0,
-      YTD:      0,
-      overage:  0
+      budget:    0,
+      YTD:       0,
+      remaining: 0,
+      overage:   0
     }
 
     $('#envelope tbody').html('');
@@ -584,18 +588,21 @@ var table = {
           fullCategory  = dataSet[i].fullCategory,
           budget        = dataSet[i].budget,
           YTD           = dataSet[i].YTD,
+          remaining     = dataSet[i].remaining,
           overage       = dataSet[i].overage;
 
       categoryLink = buildCategoryLink(category, fullCategory, month, year);
 
-      total.budget  += budget;
-      total.YTD     += YTD;
-      total.overage += overage;
+      total.budget    += budget;
+      total.YTD       += YTD;
+      total.remaining += remaining;
+      total.overage   += overage;
 
       var row = $('<tr></tr>');
       row.append('<td>' + categoryLink + '</td>');
       row.append('<td>' + formatData(budget) + '</td>');
       row.append('<td>' + formatData(YTD) + '</td>');
+      row.append('<td>' + formatData(remaining) + '</td>')
       row.append('<td>' + formatData(overage) + '</td>');
 
       row.appendTo('#envelope tbody');
@@ -605,6 +612,7 @@ var table = {
     totals.append('<td>TOTAL</td>');
     totals.append('<td>' + formatData(total.budget)  + '</td>');
     totals.append('<td>' + formatData(total.YTD)     + '</td>');
+    totals.append('<td>' + formatData(total.remaining)     + '</td>');
     totals.append('<td>' + formatData(total.overage) + '</td>');
 
     totals.appendTo('#envelope tbody');
@@ -704,23 +712,26 @@ function init() {
 
 // Don't do anything until the budget and all transactions have been fetched.
 //-----------------------------------------------------------------------------
-var main = $.getJSON(budget.file, function(data) {
+var loadBudget = $.getJSON(budget.file, function(data) {
   budget.rows = data;
   budget.cleanData();
-
-  // TODO - convert to use .when
-  // Build the budget lookup list.
-  $.getJSON(budgetLookup.file, function(data) {
-    budgetLookup.categories = data;
-
-    $.getJSON(transactions.file, function(data) {
-      transactions.rows = data;
-      transactions.cleanData();
-    
-      // Kick everything off.
-      init();
-    })
-  });
 });
 
+// Build the budget lookup list.
+var loadBudgetLookup = $.getJSON(budgetLookup.file, function(data) {
+  budgetLookup.categories = data;
+});
 
+var loadTransactions = $.getJSON(transactions.file, function(data) {
+  transactions.rows = data;
+  transactions.cleanData();
+});
+
+loadBudget.done(function() {
+  loadBudgetLookup.done(function() {
+    loadTransactions.done(function() {
+      // Kick everything off.
+      init();
+    });
+  });
+});

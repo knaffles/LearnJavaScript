@@ -15,23 +15,41 @@ form {
   color: red;
 }
 
-.table-budget {
+.table {
   font-size: 12px;
 }
 
-.table-budget > tbody > tr > td,
-.table-budget > thead > tr > th {
+.table > tbody > tr > td,
+.table > thead > tr > th {
   padding: 4px;
 }
 
-.table-budget > thead > tr > th:nth-child(n+2),
-.table-budget > tbody > tr > td:nth-child(n+2) {
+.table > thead > tr > th:nth-child(n+2),
+.table > tbody > tr > td:nth-child(n+2) {
   width: 110px;
   text-align: right;
 }
 
-.totals td {
+.table-budget {
+  table-layout: fixed;
+}
+
+.table-budget > thead > tr > th:nth-child(n+2),
+.table-budget > tbody > tr > td:nth-child(n+2) {
+  width: 90px;
+}
+
+.table-budget td:first-child,
+.table-budget th:first-child {
+  width: 225px;
+}
+
+tr.totals td {
   border-top: 1px solid black;
+  font-weight: bold;
+}
+
+td.totals {
   font-weight: bold;
 }
 

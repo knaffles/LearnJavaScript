@@ -56,7 +56,7 @@
   <button type="button" class="btn btn-primary">Submit</button>
 </form>
 
-<table id="expenses" class="table table-striped table-bordered table-budget">
+<table id="expenses" class="table table-striped table-bordered">
   <caption>Expenses</caption>
   <thead>
     <tr>
@@ -73,21 +73,7 @@
   </tbody>
 </table>
 
-<table id="envelope" class="table table-striped table-bordered table-budget">
-  <caption>Envelope Expenses</caption>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Annual Budget</th>
-      <th>Actual YTD</th>
-      <th>Overage</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
-<table id="income" class="table table-striped table-bordered table-budget">
+<table id="income" class="table table-striped table-bordered">
   <caption>Income</caption>
   <thead>
     <tr>
@@ -104,13 +90,28 @@
   </tbody>
 </table>
 
-<table id="over-under" class="table table-striped table-bordered table-budget">
+<table id="envelope" class="table table-striped table-bordered">
+  <caption>Envelope Expenses</caption>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Annual Budget</th>
+      <th>Actual YTD</th>
+      <th>Remaining</th>
+      <th>Overage</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<table id="over-under" class="table table-striped table-bordered">
   <caption>Over/Under</caption>
   <tbody>
   </tbody>
 </table>
 
-<table id="nobudget" class="table table-striped table-bordered table-budget">
+<table id="nobudget" class="table table-striped table-bordered">
   <caption>Transactions with no budget</caption>
   <thead>
     <tr>
@@ -130,7 +131,7 @@
         <h4 class="modal-title" id="transactionsLabel">Transactions</h4>
       </div>
       <div class="modal-body">
-        <table id="transactions" class="table table-striped table-bordered table-budget">
+        <table id="transactions" class="table table-striped table-bordered">
           <thead>
           </thead>
           <tbody>
