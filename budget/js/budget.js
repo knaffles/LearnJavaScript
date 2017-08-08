@@ -101,11 +101,11 @@ function buildBudgetData() {
     var entry = {};
 
     // Get the parent.
-    var catParent = budgetLookup.getParent(categories[i]);
+    var catParent = categoryLookup.getParent(categories[i]);
     catParent = (!catParent) ? categories[i] : catParent;
 
     // Income or expense?
-    var catType = budgetLookup.getType(categories[i]);
+    var catType = categoryLookup.getType(categories[i]);
 
     entry.category        = categories[i],
     entry.total           = 0;
@@ -166,11 +166,16 @@ function buildBudgetData() {
 
 }
 
-loadBudget.done(function() {
-  loadBudgetLookup.done(function() {
-    loadTransactions.done(function() {
+// TODO
+// Need a better way to kick things off. Right now, this races against. the same
+// .then functions assigined in main.js.
+getCategories.then(function() {
+  getBudget.then(function() {
+    getTransactions.then(function() {
+
       // Kick everything off.
       buildBudgetData(); 
+
     });
   });
 });

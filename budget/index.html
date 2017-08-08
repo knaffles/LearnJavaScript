@@ -25,11 +25,14 @@
       <ul class="nav navbar-nav">
         <li><a href="index.html">Expenses</a></li>
         <li><a href="budget.html">Budget</a></li>
+        <li><a href="import.html">Import Data</a></li>
         </li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+<h1>Expenses</h1>
 
 <form id="budget__filter" class="form-inline">
   <select id="budget__month" data-filter-column="Month" class="form-control">
@@ -159,8 +162,8 @@
   firebase.initializeApp(config);
 </script>
 <script src="js/jquery-2.2.4.min.js"></script>
-<script src="js/firebase.js"></script>
 <script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="js/firebase.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

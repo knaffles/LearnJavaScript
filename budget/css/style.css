@@ -15,6 +15,11 @@ form {
   color: red;
 }
 
+.table-container {
+  max-width: 100%;
+  overflow-x: scroll;
+}
+
 .table {
   font-size: 12px;
 }

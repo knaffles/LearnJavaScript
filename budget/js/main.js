@@ -1,5 +1,4 @@
-var budgetLookup = {
-  file: './data/categories.json',
+var categoryLookup = {
   categories: [],
 
   getParent: function(category) {
@@ -58,7 +57,6 @@ var budgetLookup = {
 };
 
 var budget = {
-  file: './data/budget.json',
   rows: [],
 
   // Convert months and years to integers and then remove commas and convert amounts to floats.
@@ -133,7 +131,6 @@ var budget = {
 }
 
 var transactions = {
-  file: './data/data.json',
   rows: [],
 
   // Remove commas and convert amounts to floats.
@@ -179,12 +176,12 @@ var transactions = {
       // If so, get all of its children, and when testing the categories below,
       // check to see if the transaction.Category equals the parent or any of its children.
       // If not, just proceed as normal.
-      var parent = budgetLookup.getParent(category);
+      var parent = categoryLookup.getParent(category);
       if (parent) {
         // Do nothing
       } else {
         // The category is itself a parent.
-        var children = budgetLookup.getChildren(category);
+        var children = categoryLookup.getChildren(category);
         categoryFamily = categoryFamily.concat(children); 
       }
 
@@ -218,7 +215,7 @@ var transactions = {
 
     $(dataSet).each(function(key, val) {
 
-      var catType = budgetLookup.getType(val['Category']);
+      var catType = categoryLookup.getType(val['Category']);
 
       if (val['Transaction Type'] == 'debit') {
         if (catType == 'Expense') {
@@ -302,16 +299,16 @@ var table = {
       catActualYTD = transactions.getSum(catActualYTD);
       
       // Is this Income or Expense?
-      var catType = budgetLookup.getType(theCategory);
+      var catType = categoryLookup.getType(theCategory);
       
       // Get the parent category.
-      var catParent = budgetLookup.getParent(theCategory);
+      var catParent = categoryLookup.getParent(theCategory);
       catParent = (!catParent) ? theCategory : catParent;
 
       var theFullCategory = catParent + ': ' + theCategory;
 
       // If this is an envelope budget, do some further processing.
-      var catEnvelope = budgetLookup.isEnvelope(theCategory);
+      var catEnvelope = categoryLookup.isEnvelope(theCategory);
       if (catEnvelope) {
         // Calculate the entire year budget
         var envBudget = budget.getCategoryYTD(theCategory, 12, budgetYear);
@@ -383,7 +380,7 @@ var table = {
     // Loop through all those categories and test to see if they have an entry in finalExpenses.
     for (var i = 0; i < allCategories.length; i++) {
       // Is this an expense or income category.
-      var categoryType = budgetLookup.getType(allCategories[i]);
+      var categoryType = categoryLookup.getType(allCategories[i]);
 
       if (categoryType == 'Income') {
         var thisCategory = finalIncome.findIndex(function(element) {
@@ -399,7 +396,7 @@ var table = {
         // Check to see if each one has a parent category that is in the budget
         // If so, add to the parent category
         // Find the category's parent
-        var catParent = budgetLookup.getParent(allCategories[i]);
+        var catParent = categoryLookup.getParent(allCategories[i]);
         var catActual = transactions.getTransactionsInMonthYear(allCategories[i], budgetMonth, budgetYear);
         catActual = transactions.getSum(catActual);
 
@@ -647,6 +644,22 @@ function cleanMe(aString) {
   return aString.toLowerCase().replace(/ /g,'');
 }
 
+// Given an object of objects, convert it to an array of objects.
+function convertObjToArray(obj) {
+  // Convert the object to an array.
+  var objArray = [];
+
+  for (var key in obj) {
+    // Skip the loop if the property is from prototype.
+    if (!obj.hasOwnProperty(key)) continue;
+
+    objArray.push(obj[key]);
+  }
+
+  return objArray;
+}
+
+
 function roundTwoDigits(aNumber) {
   return new Number(aNumber).toFixed(2);
 }
@@ -685,6 +698,12 @@ function parseDate(dateString) {
   return result;
 }
 
+function showError(error) {
+  var errorString = '<div class="alert">' + error + '</div>';
+  $('body').prepend(errorString);
+}
+
+
 
 // This is where everything really begins.
 //-----------------------------------------------------------------------------
@@ -712,24 +731,32 @@ function init() {
 
 // Don't do anything until the budget and all transactions have been fetched.
 //-----------------------------------------------------------------------------
-var loadBudget = $.getJSON(budget.file, function(data) {
-  budget.rows = data;
-  budget.cleanData();
-});
+getCategories.then(function(snapshotC) {
+  // Convert the object to an array.
+  var dataC = snapshotC.val();
+  dataC = convertObjToArray(dataC);
 
-// Build the budget lookup list.
-var loadBudgetLookup = $.getJSON(budgetLookup.file, function(data) {
-  budgetLookup.categories = data;
-});
+  // Assign the array to the lookup object.
+  categoryLookup.categories = dataC;
 
-var loadTransactions = $.getJSON(transactions.file, function(data) {
-  transactions.rows = data;
-  transactions.cleanData();
-});
 
-loadBudget.done(function() {
-  loadBudgetLookup.done(function() {
-    loadTransactions.done(function() {
+  getBudget.then(function(snapshotB) {
+    // Convert the object to an array.
+    var dataB = snapshotB.val();
+    dataB = convertObjToArray(dataB);
+
+    // Assign the array to the lookup object.
+    budget.rows = dataB;
+
+
+    getTransactions.then(function(snapshotT) {
+      // Convert the object to an array.
+      var dataT = snapshotT.val();
+      dataT = convertObjToArray(dataT);
+
+      // Assign the array to the lookup object.
+      transactions.rows = dataT;
+
       // Kick everything off.
       init();
     });
