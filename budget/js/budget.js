@@ -2,6 +2,9 @@ var thisYear = 2017;
 
 function renderBudgetTable(dataSet, tableId, totals) {
 
+  // Clear the table.
+  $('#' + tableId + ' tbody').html('');
+
   for (var i = 0; i < dataSet.length; i++) {
 
       var row = $('<tr></tr>');
@@ -49,6 +52,9 @@ function renderBudgetTable(dataSet, tableId, totals) {
 
 
 function renderDiffTable(dataSet, tableId) {
+
+  // Clear the table
+  $('#' + tableId + ' tbody').html('');
 
   var row = $('<tr></tr>');
 
@@ -166,16 +172,23 @@ function buildBudgetData() {
 
 }
 
-// TODO
-// Need a better way to kick things off. Right now, this races against. the same
-// .then functions assigined in main.js.
-getCategories.then(function() {
-  getBudget.then(function() {
-    getTransactions.then(function() {
 
-      // Kick everything off.
-      buildBudgetData(); 
+// Set a listener on the budget data so that we can referesh the table
+// when the data changes.
+var budgetData = database.ref('budget');
+var categoryData = database.ref('category');
 
-    });
+categoryData.on('value', function(snapshotC) {
+
+  // Assign the snapshot to the categoryLookup object.
+  categoryLookup.assignRows(snapshotC.val());
+
+  budgetData.on('value', function(snapshotB) {
+    console.log('changed!');
+    // Assign the snapshot to the categoryLookup object.
+    budget.assignRows(snapshotB.val());
+    buildBudgetData();
   });
-});
+
+
+})

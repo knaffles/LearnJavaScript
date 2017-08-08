@@ -1,6 +1,15 @@
 var categoryLookup = {
   categories: [],
 
+  // Given a firebase snapshot, assign to the categories property.
+  assignRows: function(snapshot) {
+    // Convert the object to an array.
+    snapshot = convertObjToArray(snapshot);
+
+    // Assign the array to the lookup object.
+    this.categories = snapshot;
+  },
+
   getParent: function(category) {
     var parent = this.categories.find(function(element) {
       return element.Category == category && element['Parent Category'] != category;
@@ -58,6 +67,15 @@ var categoryLookup = {
 
 var budget = {
   rows: [],
+
+  // Given a firebase snapshot, assign to the rows property.
+  assignRows: function(snapshot) {
+    // Convert the object to an array.
+    snapshot = convertObjToArray(snapshot);
+
+    // Assign the array to the lookup object.
+    this.rows = snapshot;
+  },
 
   // Convert months and years to integers and then remove commas and convert amounts to floats.
   cleanData: function() {
@@ -132,6 +150,15 @@ var budget = {
 
 var transactions = {
   rows: [],
+
+  // Given a firebase snapshot, assign to the rows property.
+  assignRows: function(snapshot) {
+    // Convert the object to an array.
+    snapshot = convertObjToArray(snapshot);
+
+    // Assign the array to the lookup object.
+    this.rows = snapshot;
+  },
 
   // Remove commas and convert amounts to floats.
   cleanData: function() {
@@ -702,63 +729,3 @@ function showError(error) {
   var errorString = '<div class="alert">' + error + '</div>';
   $('body').prepend(errorString);
 }
-
-
-
-// This is where everything really begins.
-//-----------------------------------------------------------------------------
-function init() {
-
-  $('body').on('click', '.category-link', function(e) {
-    e.preventDefault();
-
-    var pathComponents = e.currentTarget.pathname.split('/');
-    var filters = {};
-
-    filters.Category  = $(this).data('category');
-    filters.Month     = parseInt(pathComponents[3]);
-    filters.Year      = parseInt(pathComponents[4]);
-    filters.YTD       = pathComponents[5];
-
-    table.filterTo(filters);
-  });
-
-  $('#budget__filter button').on('click', function() {
-    table.filterToMonth(getFilters($(this).closest('form')), budget.responseJSON);
-  });
-
-}
-
-// Don't do anything until the budget and all transactions have been fetched.
-//-----------------------------------------------------------------------------
-getCategories.then(function(snapshotC) {
-  // Convert the object to an array.
-  var dataC = snapshotC.val();
-  dataC = convertObjToArray(dataC);
-
-  // Assign the array to the lookup object.
-  categoryLookup.categories = dataC;
-
-
-  getBudget.then(function(snapshotB) {
-    // Convert the object to an array.
-    var dataB = snapshotB.val();
-    dataB = convertObjToArray(dataB);
-
-    // Assign the array to the lookup object.
-    budget.rows = dataB;
-
-
-    getTransactions.then(function(snapshotT) {
-      // Convert the object to an array.
-      var dataT = snapshotT.val();
-      dataT = convertObjToArray(dataT);
-
-      // Assign the array to the lookup object.
-      transactions.rows = dataT;
-
-      // Kick everything off.
-      init();
-    });
-  });
-});
