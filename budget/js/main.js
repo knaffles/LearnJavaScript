@@ -145,6 +145,22 @@ var budget = {
     }, 0);
 
     return budgetYTD;
+  },
+
+  getNodeId: function(category, month, year) {
+    var nodeId = this.rows.find(function(element) {
+      return (
+        element.Category  === category  &&
+        element.Month     === month     &&
+        element.Year      === year
+      );
+    });
+
+    if (nodeId) {
+      return nodeId.nodeId;
+    } else {
+      return null;
+    }
   }
 }
 
@@ -674,11 +690,15 @@ function cleanMe(aString) {
 // Given an object of objects, convert it to an array of objects.
 function convertObjToArray(obj) {
   // Convert the object to an array.
-  var objArray = [];
+  var objArray = [],
+      objArrayItem = {};
 
   for (var key in obj) {
     // Skip the loop if the property is from prototype.
     if (!obj.hasOwnProperty(key)) continue;
+
+    objArrayItem = obj[key];
+    objArrayItem.nodeId = key;
 
     objArray.push(obj[key]);
   }

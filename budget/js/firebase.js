@@ -48,7 +48,7 @@ function cleanTransaction(entry) {
 
 // Save to firebase.
 function writeCategory(data) {
-  firebase.database().ref('category/' + encodeURIComponent(data.Category)).set({
+  database.ref('category/' + encodeURIComponent(data.Category)).set({
     Category: data.Category,
     'Parent Category': data['Parent Category'],
     Envelope : data.Envelope
@@ -57,7 +57,7 @@ function writeCategory(data) {
 
 // Save to firebase.
 function writeBudget(data) {
-  firebase.database().ref('budget/' + encodeURIComponent(data.Category) + data.Month + data.Year).set({
+  database.ref('budget/' + encodeURIComponent(data.Category) + data.Month + data.Year).set({
     Category: data.Category,
     Month:    data.Month,
     Year:     data.Year,
@@ -83,6 +83,6 @@ function writeTransaction(data, reference) {
 }
 
 // Get all categories.
-var getCategories = firebase.database().ref('category').once('value');
-var getBudget = firebase.database().ref('budget').once('value');
-var getTransactions = firebase.database().ref('transaction').once('value');
+var getCategories = database.ref('category').once('value');
+var getBudget = database.ref('budget').once('value');
+var getTransactions = database.ref('transaction').once('value');
