@@ -143,8 +143,28 @@ function renderBudgetCell(data, month) {
 
 $('#expenses').on('click', '.budget-cell', function() {
   $('#budget-amount').val($(this).text());
+  $('#budget-amount').data('node-id', $(this).data('node-id'));
   $('#budget-modal').modal();
+  $('#budget-amount').focus();
+  $('#budget-amount')[0].select();
 });
+
+$('#budget-save').on('click', function(e) {
+  e.preventDefault();
+
+  // Get the node ID to update.
+  var nodeId = $('#budget-amount').data('node-id');
+
+  // Get the updated value.
+  var newAmount = parseFloat($('#budget-amount').val());
+
+  // Write to firebase.
+  var nodeRef = database.ref('budget/' + nodeId);
+  nodeRef.update({ Amount: newAmount });
+
+  // Dismiss the modal.
+  $('#budget-modal').modal('toggle');
+})
 
 
 // Set a listener on the budget data so that we can referesh the table
@@ -157,7 +177,6 @@ categoryData.on('value', function(snapshotC) {
   categoryLookup.assignRows(snapshotC.val());
 
   budgetData.on('value', function(snapshotB) {
-
     // Assign the snapshot to the categoryLookup object.
     budget.assignRows(snapshotB.val());
     buildBudgetData();
