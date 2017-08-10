@@ -538,21 +538,22 @@ var table = {
 
     $(dataSet).each(function(key, val) {
       var row = $('<tr></tr>');
-      for (var dataKey in val) {
-        if (
-          dataKey == 'Original Description' ||
-          dataKey == 'Labels' ||
-          dataKey == 'Account Name'
-        ) {
-          continue;
-        }
-        row.append("<td>" + val[dataKey] + "</td>");
+
+      // var amount = rmatData(val.Amount);
+
+      if (val['Transaction Type'] == 'credit') {
+        val.Amount = -1 * val.Amount;
       }
+
+      row.append('<td>' + val.Date + '</td>');
+      row.append('<td>' + val.Description + '</td>');
+      row.append('<td>' + val.Notes + '</td>');
+      row.append('<td>' + formatData(val.Amount) + '</td>');
       
       row.appendTo('#transactions tbody');
     })
 
-    var total = $('<tr class="totals"><td>TOTAL:</td><td colspan="7">' + total + '</td></tr>');
+    var total = $('<tr class="totals"><td colspan="3">TOTAL:</td><td>' + formatData(total) + '</td></tr>');
     total.appendTo('#transactions tbody');
 
     return;

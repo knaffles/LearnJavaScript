@@ -29,8 +29,8 @@ form {
   padding: 4px;
 }
 
-.table > thead > tr > th:nth-child(n+2),
-.table > tbody > tr > td:nth-child(n+2) {
+.table-exp-inc > thead > tr > th:nth-child(n+2),
+.table-exp-inc > tbody > tr > td:nth-child(n+2) {
   width: 110px;
   text-align: right;
 }
@@ -47,6 +47,21 @@ form {
 .table-budget td:first-child,
 .table-budget th:first-child {
   width: 225px;
+}
+
+.table-transactions td:first-child,
+.table-transactions th:first-child {
+  width: 60px;
+}
+
+/*.table-transactions > tbody > tr > td,
+.table-transactions > thead > tr > th {
+  text-align: left;
+}*/
+
+.table-transactions > tbody > tr > td:last-child,
+.table-transactions > thead > tr > th:last-child {
+  text-align: right;
 }
 
 tr.totals td {
