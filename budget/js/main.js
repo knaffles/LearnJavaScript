@@ -685,7 +685,7 @@ function buildCategoryLink(category, fullCategory, month, year) {
 }
 
 function cleanMe(aString) {
-  return aString.toLowerCase().replace(/ /g,'');
+  return aString.toLowerCase().replace(/ /g,'').replace(/\//g,'');
 }
 
 // Given an object of objects, convert it to an array of objects.
