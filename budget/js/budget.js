@@ -141,44 +141,64 @@ function renderBudgetCell(data, month) {
   return '<td class="budget-cell" data-node-id="' + nodeId + '" data-month="' + month + '">' + amount + '</td>';
 }
 
-$('#expenses').on('click', '.budget-cell', function() {
-  $('#budget-amount').val($(this).text());
-  $('#budget-amount').data('node-id', $(this).data('node-id'));
-  $('#budget-modal').modal();
-  $('#budget-amount').focus();
-  $('#budget-amount')[0].select();
-});
-
-$('#budget-save').on('click', function(e) {
-  e.preventDefault();
-
-  // Get the node ID to update.
-  var nodeId = $('#budget-amount').data('node-id');
-
-  // Get the updated value.
-  var newAmount = parseFloat($('#budget-amount').val());
-
-  // Write to firebase.
-  var nodeRef = database.ref('budget/' + nodeId);
-  nodeRef.update({ Amount: newAmount });
-
-  // Dismiss the modal.
-  $('#budget-modal').modal('toggle');
-})
-
 
 // Set a listener on the budget data so that we can referesh the table
 // when the data changes.
-var budgetData = database.ref('budget');
-var categoryData = database.ref('category');
+firebase.auth().onAuthStateChanged(function(user) {
 
-categoryData.on('value', function(snapshotC) {
-  // Assign the snapshot to the categoryLookup object.
-  categoryLookup.assignRows(snapshotC.val());
+  if (user) {
 
-  budgetData.on('value', function(snapshotB) {
-    // Assign the snapshot to the categoryLookup object.
-    budget.assignRows(snapshotB.val());
-    buildBudgetData();
-  });
-})
+    var uid = user.uid;
+
+    var budgetData = database.ref('budget/' + uid);
+    var categoryData = database.ref('category/' + uid);
+
+    categoryData.on('value', function(snapshotC) {
+
+      // Assign the snapshot to the categoryLookup object.
+      categoryLookup.assignRows(snapshotC.val());
+
+      budgetData.on('value', function(snapshotB) {
+
+        // Assign the snapshot to the categoryLookup object.
+        budget.assignRows(snapshotB.val());
+        buildBudgetData();
+
+      });
+
+      $('#expenses').on('click', '.budget-cell', function() {
+        $('#budget-amount').val($(this).text());
+        $('#budget-amount').data('node-id', $(this).data('node-id'));
+        $('#budget-modal').modal();
+        $('#budget-amount').focus();
+        $('#budget-amount')[0].select();
+      });
+
+      $('#budget-save').on('click', function(e) {
+        e.preventDefault();
+
+        // Get the node ID to update.
+        var nodeId = $('#budget-amount').data('node-id');
+
+        // Get the updated value.
+        var newAmount = parseFloat($('#budget-amount').val());
+
+        // Write to firebase.
+        var nodeRef = database.ref('budget/' + uid + '/' + nodeId);
+        nodeRef.update({ Amount: newAmount });
+
+        // Dismiss the modal.
+        $('#budget-modal').modal('toggle');
+      })
+
+    })
+
+  } else {
+
+    // Clear all data.
+
+  }
+
+});
+
+

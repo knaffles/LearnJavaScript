@@ -116,48 +116,58 @@ function csvFileToJSON(file) {
   });
 }
 
-$('#import-transactions button').on('click', function() {
-  var file = $('#import-transactions__data')[0].files[0];
-  var result = csvFileToJSON(file);
 
-  result.then(function(data) {
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    var uid = user.uid;
 
-    // Check for bad data at the end of the array.
-    // This happens when the last row is a blank line.
-    // TODO find a better way to do this.
-    if (data[data.length - 1].Date === '') {
-      data.pop();
-    }
+    $('#import button').on('click', function() {
+      var data = $('#import__data').val(),
+          option = $('#import__option').val();
 
-    clearNode('transaction').then(processTransactions(data));
-  });
-});
+      try {
+        data = JSON.parse(data);
+      } catch (e) {
+        showError('Import was not successful: ' + e.message);
+        data = [];
+      }
 
+      if (data.length > 0) {
+        switch (option) {
+          case 'budget':
+            clearNode('budget/' + uid).then(processBudget(data, uid));
+            break;
 
-$('#import button').on('click', function() {
-  var data = $('#import__data').val(),
-      option = $('#import__option').val();
+          case 'categories':
+            clearNode('category/' + uid).then(processCategories(data, uid));
+            break;
 
-  try {
-    data = JSON.parse(data);
-  } catch (e) {
-    showError('Import was not successful: ' + e.message);
-    data = [];
-  }
+          case 'transactions':
+            clearNode('transaction/' + uid).then(processTransactions(data, uid));
+            break;
+        }
+      }
+    });
 
-  if (data.length > 0) {
-    switch (option) {
-      case 'budget':
-        clearNode('budget').then(processBudget(data));
-        break;
+    $('#import-transactions button').on('click', function() {
+      var file = $('#import-transactions__data')[0].files[0];
+      var result = csvFileToJSON(file);
 
-      case 'categories':
-        clearNode('category').then(processCategories(data));
-        break;
+      result.then(function(data) {
 
-      case 'transactions':
-        clearNode('transaction').then(processTransactions(data));
-        break;
-    }
+        // Check for bad data at the end of the array.
+        // This happens when the last row is a blank line.
+        // TODO find a better way to do this.
+        if (data[data.length - 1].Date === '') {
+          data.pop();
+        }
+
+        clearNode('transaction/' + uid).then(processTransactions(data, uid));
+      });
+    });
+    
+
+  } else {
+    // No user.
   }
 });

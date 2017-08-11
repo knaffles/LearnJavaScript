@@ -1,28 +1,49 @@
 // Get a reference to the database service
 var database = firebase.database();
 
+// A global variable to hold our data.
+window.budgetApp = {};
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    var uid = user.uid;
+    // Get all categories.
+    budgetApp.getCategories = database.ref('category/' + uid).once('value');
+    budgetApp.getBudget = database.ref('budget/' + uid).once('value');
+    budgetApp.getTransactions = database.ref('transaction/' + uid).once('value');
+    console.log(budgetApp);
+  } else {
+    window.location = 'index.html';
+  }
+});
+
+$('#logout').on('click', function(e) {
+  e.preventDefault();
+  firebase.auth().signOut();
+});
+
 // Clear all entries in a node.
 function clearNode(node) {
   return database.ref(node).remove();
 }
 
 // Loop through each category.
-function processCategories(data) {
+function processCategories(data, uid) {
   for (var i = 0; i < data.length; i++) {
-    writeCategory(data[i]);
+    writeCategory(data[i], uid);
   }
 }
 
 // Loop through each budget entry.
-function processBudget(data) {
+function processBudget(data, uid) {
   for (var i = 0; i < data.length; i++) {
-    writeBudget(cleanBudget(data[i]));
+    writeBudget(cleanBudget(data[i]), uid);
   }
 }
 
 // Loop through each transaction.
-function processTransactions(data) {
-  var transactionRef = database.ref('transaction');
+function processTransactions(data, uid) {
+  var transactionRef = database.ref('transaction/' + uid);
 
   for (var i = 0; i < data.length; i++) {
     writeTransaction(cleanTransaction(data[i]), transactionRef);
@@ -47,8 +68,8 @@ function cleanTransaction(entry) {
 }
 
 // Save to firebase.
-function writeCategory(data) {
-  database.ref('category/' + encodeURIComponent(data.Category)).set({
+function writeCategory(data, uid) {
+  database.ref('category/' + uid + '/' + encodeURIComponent(data.Category)).set({
     Category: data.Category,
     'Parent Category': data['Parent Category'],
     Envelope : data.Envelope
@@ -56,8 +77,8 @@ function writeCategory(data) {
 }
 
 // Save to firebase.
-function writeBudget(data) {
-  database.ref('budget/' + encodeURIComponent(data.Category) + data.Month + data.Year).set({
+function writeBudget(data, uid) {
+  database.ref('budget/' + uid + '/' + encodeURIComponent(data.Category) + data.Month + data.Year).set({
     Category: data.Category,
     Month:    data.Month,
     Year:     data.Year,
@@ -81,8 +102,3 @@ function writeTransaction(data, reference) {
     Notes:                  data.Notes
   });
 }
-
-// Get all categories.
-var getCategories = database.ref('category').once('value');
-var getBudget = database.ref('budget').once('value');
-var getTransactions = database.ref('transaction').once('value');

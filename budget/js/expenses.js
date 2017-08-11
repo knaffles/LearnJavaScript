@@ -22,25 +22,36 @@ function init() {
 
 }
 
-// Don't do anything until the budget and all transactions have been fetched.
-//-----------------------------------------------------------------------------
-getCategories.then(function(snapshotC) {
 
-  // Assign the snapshot to the categoryLookup object.
-  categoryLookup.assignRows(snapshotC.val());
+firebase.auth().onAuthStateChanged(function(user) {
 
-  getBudget.then(function(snapshotB) {
+  if (user) {
+    // Don't do anything until the budget and all transactions have been fetched.
+    //-----------------------------------------------------------------------------
+    budgetApp.getCategories.then(function(snapshotC) {
 
-    // Assign the snapshot to the budget object.
-    budget.assignRows(snapshotB.val());
+      // Assign the snapshot to the categoryLookup object.
+      categoryLookup.assignRows(snapshotC.val());
 
-    getTransactions.then(function(snapshotT) {
+      budgetApp.getBudget.then(function(snapshotB) {
 
-      // Assign the array to the transactions object.
-      transactions.assignRows(snapshotT.val());
+        // Assign the snapshot to the budget object.
+        budget.assignRows(snapshotB.val());
 
-      // Kick everything off.
-      init();
+        budgetApp.getTransactions.then(function(snapshotT) {
+
+          // Assign the array to the transactions object.
+          transactions.assignRows(snapshotT.val());
+
+          // Kick everything off.
+          init();
+        });
+      });
     });
-  });
+  } else {
+    window.location = 'index.html';
+  }
+
 });
+
+
