@@ -48,10 +48,7 @@ firebase.auth().onAuthStateChanged(function(user) {
         });
       });
     });
-  } else {
-    window.location = 'index.html';
   }
-
 });
 
 

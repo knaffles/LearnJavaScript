@@ -150,6 +150,11 @@ firebase.auth().onAuthStateChanged(function(user) {
 
     var uid = user.uid;
 
+    var masquerade = sessionStorage.getItem('masquerade');
+    if (masquerade) {
+      uid = masquerade;
+    }
+
     var budgetData = database.ref('budget/' + uid);
     var categoryData = database.ref('category/' + uid);
 
@@ -192,10 +197,6 @@ firebase.auth().onAuthStateChanged(function(user) {
       })
 
     })
-
-  } else {
-
-    // Clear all data.
 
   }
 

@@ -2,16 +2,25 @@
 var database = firebase.database();
 
 // A global variable to hold our data.
-window.budgetApp = {};
+var budgetApp = {};
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     var uid = user.uid;
+    var username = user.name;
+
+    var masquerade = sessionStorage.getItem('masquerade');
+    if (masquerade) {
+      uid = masquerade;
+    }
+
+    // Set the username
+
+
     // Get all categories.
     budgetApp.getCategories = database.ref('category/' + uid).once('value');
     budgetApp.getBudget = database.ref('budget/' + uid).once('value');
     budgetApp.getTransactions = database.ref('transaction/' + uid).once('value');
-    console.log(budgetApp);
   } else {
     window.location = 'index.html';
   }
@@ -101,4 +110,10 @@ function writeTransaction(data, reference) {
     Labels:                 data.Labels,
     Notes:                  data.Notes
   });
+}
+
+// Save a share email.
+function writeShareEmail(email, uid) {
+  var user = database.ref('user/' + uid + '/' + email);
+  user.set( email );
 }

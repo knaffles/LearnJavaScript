@@ -119,8 +119,13 @@ function csvFileToJSON(file) {
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    var uid = user.uid;
+    var uid = user.uid;    var uid = user.uid;
 
+    var masquerade = sessionStorage.getItem('masquerade');
+    if (masquerade) {
+      uid = masquerade;
+    }
+    
     $('#import button').on('click', function() {
       var data = $('#import__data').val(),
           option = $('#import__option').val();
@@ -165,9 +170,12 @@ firebase.auth().onAuthStateChanged(function(user) {
         clearNode('transaction/' + uid).then(processTransactions(data, uid));
       });
     });
-    
 
-  } else {
-    // No user.
-  }
+    $('#share button').on('click', function(e) {
+      e.preventDefault();
+      var email = $('#share__email').val();
+
+      writeShareEmail(email, uid);
+    })
+  } 
 });

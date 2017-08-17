@@ -1,18 +1,59 @@
 $('#loading').css('opacity', 1);
 
+$('#logout').hide();
+
+$('#logout').on('click', function(e) {
+  e.preventDefault();
+  sessionStorage.clear();
+  firebase.auth().signOut();
+});
+
+$('#login').on('click', function(e) {
+  e.preventDefault();
+
+  var provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithRedirect(provider);
+});
+
+$('#sharing__save').on('click', function(e) {
+  e.preventDefault();
+  var masq = $('#sharing__ids').val();
+
+  sessionStorage.setItem('masquerade', masq);
+})
+
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    window.location = 'expenses.html';
+    $('#loading').hide();
+    $('#links').show();
+    $('#logout').show();
+
+    // Get any shared accounts.
+    var shared = getShared(user.uid);
+    shared.then(function(snapshot) {
+      sharedIds = snapshot.val();
+
+      for (var id in sharedIds) {
+        // Skip the loop if the property is from prototype.
+        if (!sharedIds.hasOwnProperty(id)) continue;
+
+        var username = getUsername(id);
+        username.then(function(snapshot) {
+          var option = '<option value="' + id + '">' + snapshot.val().name + '</option>';
+          $(option).appendTo('#sharing__ids');
+        });
+      }
+    });
   } else {
     // Hide the loading message, and enable the login button.
     $('#loading').hide();
     $('#login').show();
+    $('#logout').hide();
+    $('#links').hide();
   }
 });
 
 firebase.auth().getRedirectResult().then(function(result) {
-  console.log('redirect');
-
   if (result.credential) {
     // This gives you a Google Access Token. You can use it to access the Google API.
     var token = result.credential.accessToken;
@@ -20,6 +61,17 @@ firebase.auth().getRedirectResult().then(function(result) {
   }
   // The signed-in user info.
   var user = result.user;
+  var uid = user.uid;
+  var name = user.displayName;
+  var email = user.email
+
+  firebase.database().ref('user/' + uid ).set({
+    'name': name,
+    'email': email
+  });
+
+  // Write to email_to_users here
+
 
 }).catch(function(error) {
   // Handle Errors here.
@@ -32,9 +84,11 @@ firebase.auth().getRedirectResult().then(function(result) {
   // ...
 });
 
-$('#login').on('click', function(e) {
-  e.preventDefault();
+// Get accounts shared with me.
+function getShared(uid) {
+  return firebase.database().ref().child('friends').child(uid).once('value');
+}
 
-  var provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithRedirect(provider);
-});
+function getUsername(uid) {
+  return firebase.database().ref('user/' + uid).once('value');
+}

@@ -19,6 +19,12 @@
       </button>
       <a class="navbar-brand" href="index.html">Budget Tool</a>
     </div>
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <form class="navbar-form navbar-right">
+        <button class="btn btn-default" id="logout">Logout</button>
+      </form>
+    </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 
@@ -29,6 +35,23 @@
 <form>
   <button class="btn btn-default" id="login">Login</button>
 </form>
+
+<div id="links">
+<p>Get started...</p>
+<ul>
+<li><a href="expenses.html">View Expenses</a></li>
+<li><a href="budget.html">View Budget</a></li>
+<li><a href="import.html">Import Data</a></li>
+</ul>
+
+<form id="sharing">
+  <div class="form-group">
+    <label for="sharing__ids">The following accounts have been shared with you. Choose one to view that account's budget data.</label>
+    <select id="sharing__ids" class="form-control"></select>
+  </div>
+  <button class="btn btn-default" id="sharing__save" type="submit">Save</button>
+</form>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
 <script>
