@@ -16,8 +16,9 @@ form {
   transition: opacity 100ms ease-in; /* Just to keep it from flashing on initial page load. */
 }
 
-#login {
+#login-container {
   display: none;
+  max-width: 200px;
 }
 
 .positive {

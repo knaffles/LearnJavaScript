@@ -391,10 +391,15 @@
     "responsive-utilities.less",
     "navs.less",
     "navbar.less",
+    "labels.less",
+    "jumbotron.less",
+    "alerts.less",
+    "wells.less",
+    "close.less",
     "modals.less"
   ],
   "js": [
     "modal.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=b0fa3ca72a030a4300133015d4b41ada"
+  "customizerUrl": "https://getbootstrap.com/docs/3.3/customize/?id=83f5a1303ef4858ffa430cba63d63d80"
 }

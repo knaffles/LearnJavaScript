@@ -19,7 +19,15 @@ $('#sharing__save').on('click', function(e) {
   e.preventDefault();
   var masq = $('#sharing__ids').val();
 
-  sessionStorage.setItem('masquerade', masq);
+  if (masq) {
+    sessionStorage.setItem('masquerade', masq);  
+  }
+})
+
+$('#sharing__stop').on('click', function(e) {
+  e.preventDefault();
+
+  sessionStorage.removeItem('masquerade');
 })
 
 firebase.auth().onAuthStateChanged(function(user) {
@@ -47,7 +55,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   } else {
     // Hide the loading message, and enable the login button.
     $('#loading').hide();
-    $('#login').show();
+    $('#login-container').show();
     $('#logout').hide();
     $('#links').hide();
   }

@@ -17,7 +17,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Budget Tool</a>
+      <a class="navbar-brand" href="index.html">Budgeting</a>
     </div>
 
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -32,9 +32,11 @@
   <p>One second please...</p>
 </div>
 
-<form>
-  <button class="btn btn-default" id="login">Login</button>
-</form>
+<div class="center-block" id="login-container">
+  <form class="text-center">
+    <button class="btn btn-primary" id="login">Login</button>
+  </form>
+</div>
 
 <div id="links">
 <p>Get started...</p>
@@ -46,10 +48,13 @@
 
 <form id="sharing">
   <div class="form-group">
-    <label for="sharing__ids">The following accounts have been shared with you. Choose one to view that account's budget data.</label>
-    <select id="sharing__ids" class="form-control"></select>
+    <label for="sharing__ids">The following user accounts have been shared with you. Choose one to masquerade as that user.</label>
+    <select id="sharing__ids" class="form-control">
+      <option value="">Choose...</option>
+    </select>
   </div>
-  <button class="btn btn-default" id="sharing__save" type="submit">Save</button>
+  <button class="btn btn-primary" id="sharing__save" type="submit">Save</button>
+  <button class="btn btn-default" id="sharing__stop" type="button">Stop Masquerading</button>
 </form>
 </div>
 
