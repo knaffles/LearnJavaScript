@@ -1,3 +1,8 @@
+$('#header').on('click', "#logout", function(e) {
+  e.preventDefault();
+  firebase.auth().signOut();
+});
+
 // Get a reference to the database service
 var database = firebase.database();
 
@@ -16,7 +21,6 @@ firebase.auth().onAuthStateChanged(function(user) {
 
     // Set the username
 
-
     // Get all categories.
     budgetApp.getCategories = database.ref('category/' + uid).once('value');
     budgetApp.getBudget = database.ref('budget/' + uid).once('value');
@@ -24,11 +28,6 @@ firebase.auth().onAuthStateChanged(function(user) {
   } else {
     window.location = 'index.html';
   }
-});
-
-$('#logout').on('click', function(e) {
-  e.preventDefault();
-  firebase.auth().signOut();
 });
 
 // Clear all entries in a node.

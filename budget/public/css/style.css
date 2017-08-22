@@ -1,104 +1,75 @@
 body {
   margin: 20px auto;
-  max-width: 1024px;
-}
+  max-width: 1024px; }
 
 form {
-  margin-bottom: 30px;
-}
+  margin-bottom: 30px; }
 
+#content,
 #links {
-  display: none;
-}
+  display: none; }
 
 #loading {
   opacity: 0;
-  transition: opacity 100ms ease-in; /* Just to keep it from flashing on initial page load. */
-}
+  transition: opacity 100ms ease-in;
+  /* Just to keep it from flashing on initial page load. */ }
 
 #login-container {
   display: none;
-  max-width: 200px;
-}
+  max-width: 200px; }
 
 .positive {
-  color: black;
-}
+  color: black; }
 
 .negative {
-  color: red;
-}
+  color: red; }
 
 .table-container {
   max-width: 100%;
-  overflow-x: scroll;
-}
+  overflow-x: scroll; }
 
 .table {
-  font-size: 12px;
-}
-
-.table > tbody > tr > td,
-.table > thead > tr > th {
-  padding: 4px;
-}
+  font-size: 12px; }
+  .table > tbody > tr > td,
+  .table > thead > tr > th {
+    padding: 4px; }
 
 .table-exp-inc > thead > tr > th:nth-child(n+2),
 .table-exp-inc > tbody > tr > td:nth-child(n+2) {
   width: 110px;
-  text-align: right;
-}
+  text-align: right; }
 
 .table-budget {
-  table-layout: fixed;
-}
-
-.table-budget > thead > tr > th:nth-child(n+2),
-.table-budget > tbody > tr > td:nth-child(n+2) {
-  width: 60px;
-}
-
-.table-budget td:first-child,
-.table-budget th:first-child {
-  width: 225px;
-}
-
-.table-transactions td:first-child,
-.table-transactions th:first-child {
-  width: 60px;
-}
-
-/*.table-transactions > tbody > tr > td,
-.table-transactions > thead > tr > th {
-  text-align: left;
-}*/
+  table-layout: fixed; }
+  .table-budget > thead > tr > th:first-child,
+  .table-budget > tbody > tr > td:first-child {
+    width: 225px; }
+  .table-budget > thead > tr > th:nth-child(n+2),
+  .table-budget > tbody > tr > td:nth-child(n+2) {
+    width: 60px; }
 
 .table-transactions > tbody > tr > td:last-child,
 .table-transactions > thead > tr > th:last-child {
-  text-align: right;
-}
+  text-align: right; }
+
+.table-transactions > tbody > tr > td:first-child,
+.table-transactions > thead > tr > th:first-child {
+  width: 60px; }
 
 tr.totals td {
   border-top: 1px solid black;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
 td.totals {
-  font-weight: bold;
-}
+  font-weight: bold; }
 
 .budget-cell {
-  cursor: pointer;
-}
-
-.budget-cell:hover span,
-.budget-cell:focus span {
-  color: #428BCA;
-}
+  cursor: pointer; }
+  .budget-cell:hover span,
+  .budget-cell:focus span {
+    color: #428BCA; }
 
 @media (min-width: 768px) {
   .modal-dialog {
     width: 800px;
-    margin: 30px auto;
-  }
-}
+    margin: 30px auto; } }
