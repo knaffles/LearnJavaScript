@@ -15,9 +15,9 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
 
     // Get all categories.
-    budgetApp.getCategories = database.ref('category/' + uid).once('value');
-    budgetApp.getBudget = database.ref('budget/' + uid).once('value');
-    budgetApp.getTransactions = database.ref('transaction/' + uid).once('value');
+    // budgetApp.getCategories = database.ref('category/' + uid).once('value');
+    // budgetApp.getBudget = database.ref('budget/' + uid).once('value');
+    // budgetApp.getTransactions = database.ref('transaction/' + uid).once('value');
 
     renderPage(username);
 
