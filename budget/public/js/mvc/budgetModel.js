@@ -1,4 +1,4 @@
-var BudgetModel = function () {
+var BudgetModel = function (uid) {
 
   this.rows = [];
   this.categories = [],
@@ -7,6 +7,7 @@ var BudgetModel = function () {
   this.budgetDiff = [];
   this.totalExpenses = {};
   this.totalIncome = {};
+  this.uid = uid;
   this.dataBuiltEvent = new Event(this);
 
 };
@@ -25,6 +26,13 @@ BudgetModel.prototype = {
   },
 
   buildBudgetData: function() {
+    // Set everything to empty.
+    this.budgetExpenses = [];
+    this.budgetIncome = [];
+    this.budgetDiff = [];
+    this.totalExpenses = [];
+    this.totalIncome = [];
+
     // Initialize totals
     for (var month = 1; month <= 12; month++) {
       this.totalExpenses['month' + month] = this.totalIncome['month' + month] = 0;
@@ -78,16 +86,12 @@ BudgetModel.prototype = {
     this.budgetExpenses = transactions.sort(this.budgetExpenses, 'displayCategory');
     this.budgetIncome   = transactions.sort(this.budgetIncome, 'displayCategory');
 
-    // renderBudgetTable(budgetExpenses, 'expenses', totalExpenses);
-    // renderBudgetTable(budgetIncome, 'income', totalIncome);
-
     // Calculate Income - Expenses
     for (var month = 1; month <= 12; month++) {
       this.budgetDiff['month' + month] = this.totalIncome['month' + month] - this.totalExpenses['month' + month];
     }
 
     this.budgetDiff.yearTotal = this.totalIncome.total - this.totalExpenses.total;
-    // renderDiffTable(budgetDiff, 'income-expenses');
 
     this.dataBuiltEvent.notify();
   },

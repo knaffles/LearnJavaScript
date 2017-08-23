@@ -1,6 +1,7 @@
-var BudgetView = function (model) {
+var BudgetView = function (model, uid) {
 
   this.model = model;
+  this.uid = uid;
   // this.addTaskEvent = new Event(this);
   // this.selectTaskEvent = new Event(this);
   // this.unselectTaskEvent = new Event(this);
@@ -23,93 +24,56 @@ BudgetView.prototype = {
     // Cache the document object
     this.$content = $('#content');
     this.$expenses = this.$content.find('#expenses');
-    // this.$addTaskButton = this.$container.find('.js-add-task-button');
-    // this.$taskTextBox = this.$container.find('.js-task-textbox');
-    // this.$tasksContainer = this.$container.find('.js-tasks-container');
+    this.$budgetSave = this.$content.find('#budget-save');
 
     return this;
   },
 
   setupHandlers: function () {
-    this.expensesClickHandler = this.expensesClick.bind(this);
-    // this.addTaskButtonHandler = this.addTaskButton.bind(this);
-    // this.selectOrUnselectTaskHandler = this.selectOrUnselectTask.bind(this);
-    // this.completeTaskButtonHandler = this.completeTaskButton.bind(this);
-    // this.deleteTaskButtonHandler = this.deleteTaskButton.bind(this);
+    this.saveClickHandler = this.saveClick.bind(this);
 
     /**
     Handlers from Event Dispatcher
     */
-    // this.addTaskHandler = this.addTask.bind(this);
-    // this.clearTaskTextBoxHandler = this.clearTaskTextBox.bind(this);
-    // this.setTasksAsCompletedHandler = this.setTasksAsCompleted.bind(this);
-    // this.deleteTasksHandler = this.deleteTasks.bind(this);
-
     this.dataBuiltHandler = this.dataBuilt.bind(this);
 
     return this;
   },
 
   enable: function () {
-    this.$expenses.on('click', '.budget-cell', this.expensesClickHandler);
-    // this.$addTaskButton.click(this.addTaskButtonHandler);
-    // this.$container.on('click', '.js-task', this.selectOrUnselectTaskHandler);
-    // this.$container.on('click', '.js-complete-task-button', this.completeTaskButtonHandler);
-    // this.$container.on('click', '.js-delete-task-button', this.deleteTaskButtonHandler);
+    this.$expenses.on('click', '.budget-cell', function() {
+      $('#budget-amount').val($(this).text());
+      $('#budget-amount').data('node-id', $(this).data('node-id'));
+      $('#budget-modal').modal();
+      $('#budget-amount').focus();
+      $('#budget-amount')[0].select();
+    });
+    this.$budgetSave.on('click', this.saveClickHandler);
 
     /**
      * Event Dispatcher
      */
-    // this.model.addTaskEvent.attach(this.addTaskHandler);
-    // this.model.addTaskEvent.attach(this.clearTaskTextBoxHandler);
-    // this.model.setTasksAsCompletedEvent.attach(this.setTasksAsCompletedHandler);
-    // this.model.deleteTasksEvent.attach(this.deleteTasksHandler);
-
     this.model.dataBuiltEvent.attach(this.dataBuiltHandler);
 
     return this;
   },
 
-  expensesClick: function() {
-    debugger;
-    $('#budget-amount').val($(event.target).text());
-    $('#budget-amount').data('node-id', $(event.target).data('node-id'));
-    $('#budget-modal').modal();
-    $('#budget-amount').focus();
-    $('#budget-amount')[0].select();
+  saveClick: function() {
+    event.preventDefault();
+
+    // Get the node ID to update.
+    var nodeId = $('#budget-amount').data('node-id');
+
+    // Get the updated value.
+    var newAmount = parseFloat($('#budget-amount').val());
+
+    // Write to firebase.
+    var nodeRef = database.ref('budget/' + this.uid + '/' + nodeId);
+    nodeRef.update({ Amount: newAmount });
+
+    // Dismiss the modal.
+    $('#budget-modal').modal('toggle');    
   },
-
-  // addTaskButton: function () {
-  //     this.addTaskEvent.notify({
-  //         task: this.$taskTextBox.val()
-  //     });
-  // },
-
-  // completeTaskButton: function () {
-  //     this.completeTaskEvent.notify();
-  // },
-
-  // deleteTaskButton: function () {
-  //     this.deleteTaskEvent.notify();
-  // },
-
-  // selectOrUnselectTask: function () {
-
-  //     var taskIndex = $(event.target).attr("data-index");
-
-  //     if ($(event.target).attr('data-task-selected') == 'false') {
-  //         $(event.target).attr('data-task-selected', true);
-  //         this.selectTaskEvent.notify({
-  //             taskIndex: taskIndex
-  //         });
-  //     } else {
-  //         $(event.target).attr('data-task-selected', false);
-  //         this.unselectTaskEvent.notify({
-  //             taskIndex: taskIndex
-  //         });
-  //     }
-
-  // },
 
   show: function () {
     this.renderBudgetTable(this.model.budgetExpenses, 'expenses', this.model.totalExpenses);
@@ -175,24 +139,6 @@ BudgetView.prototype = {
   },
 
   /* -------------------- Handlers From Event Dispatcher ----------------- */
-
-  // clearTaskTextBox: function () {
-  //     this.$taskTextBox.val('');
-  // },
-
-  // addTask: function () {
-  //     this.show();
-  // },
-
-  // setTasksAsCompleted: function () {
-  //     this.show();
-
-  // },
-
-  // deleteTasks: function () {
-  //     this.show();
-
-  // }
 
   dataBuilt: function() {
     this.show();

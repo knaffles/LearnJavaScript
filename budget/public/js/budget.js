@@ -10,8 +10,8 @@ firebase.auth().onAuthStateChanged(function(user) {
       uid = masquerade;
     }
 
-    var model       = new BudgetModel(),
-        view        = new BudgetView(model),
+    var model       = new BudgetModel(uid),
+        view        = new BudgetView(model, uid),
         controller  = new BudgetController(model, view, uid);
   }
 

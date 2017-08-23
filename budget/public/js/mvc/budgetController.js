@@ -58,24 +58,6 @@ BudgetController.prototype = {
 
       });
 
-      // TODO DEAL WITH THIS.
-      $('#budget-save').on('click', function(e) {
-        e.preventDefault();
-
-        // Get the node ID to update.
-        var nodeId = $('#budget-amount').data('node-id');
-
-        // Get the updated value.
-        var newAmount = parseFloat($('#budget-amount').val());
-
-        // Write to firebase.
-        var nodeRef = database.ref('budget/' + uid + '/' + nodeId);
-        nodeRef.update({ Amount: newAmount });
-
-        // Dismiss the modal.
-        $('#budget-modal').modal('toggle');
-      })
-
     })
 
     return this;
