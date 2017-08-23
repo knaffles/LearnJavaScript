@@ -24,6 +24,8 @@
       <form class="navbar-form navbar-right">
         <button class="btn btn-default" id="logout">Logout</button>
       </form>
+
+      <div class="navbar-text navbar-right" id="username"></div>
     </div>
   </div>
 </nav>
