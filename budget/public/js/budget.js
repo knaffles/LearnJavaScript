@@ -1,18 +1,22 @@
-var thisYear = 2017;
-
 firebase.auth().onAuthStateChanged(function(user) {
 
   if (user) {
+    
     var uid = user.uid;
+    var username = user.displayName;
+
+    renderPage(username);
+
     var masquerade = sessionStorage.getItem('masquerade');
 
     if (masquerade) {
       uid = masquerade;
     }
 
-    var model       = new BudgetModel(uid),
-        view        = new BudgetView(model, uid),
-        controller  = new BudgetController(model, view, uid);
+    var transactionsModel   = new TransactionsModel(),
+        budgetModel         = new BudgetModel(transactionsModel),
+        view                = new BudgetView(budgetModel, uid),
+        controller          = new BudgetController(budgetModel, view, uid);
   }
 
 });

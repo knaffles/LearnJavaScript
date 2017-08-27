@@ -1,25 +1,9 @@
 // Get a reference to the database service
 var database = firebase.database();
 
-// A global variable to hold our data.
-var budgetApp = {};
-
 firebase.auth().onAuthStateChanged(function(user) {
+
   if (user) {
-    var uid = user.uid;
-    var username = user.displayName;
-
-    var masquerade = sessionStorage.getItem('masquerade');
-    if (masquerade) {
-      uid = masquerade;
-    }
-
-    // Get all categories.
-    // budgetApp.getCategories = database.ref('category/' + uid).once('value');
-    // budgetApp.getBudget = database.ref('budget/' + uid).once('value');
-    // budgetApp.getTransactions = database.ref('transaction/' + uid).once('value');
-
-    renderPage(username);
 
     $('#header').on('click', "#logout", function(e) {
       e.preventDefault();
@@ -27,8 +11,11 @@ firebase.auth().onAuthStateChanged(function(user) {
     });
 
   } else {
+
     window.location = 'index.html';
+
   }
+
 });
 
 // Clear all entries in a node.
