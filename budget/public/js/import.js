@@ -1,3 +1,69 @@
+firebase.auth().onAuthStateChanged(function(user) {
+
+  if (user) {
+
+    var uid = user.uid;
+    var username = user.displayName;
+
+    renderPage(username);
+
+    var masquerade = sessionStorage.getItem('masquerade');
+    
+    if (masquerade) {
+      uid = masquerade;
+    }
+    
+    $('#import button').on('click', function() {
+      var data = $('#import__data').val(),
+          option = $('#import__option').val();
+
+      try {
+        data = JSON.parse(data);
+      } catch (e) {
+        showError('Import was not successful: ' + e.message);
+        data = [];
+      }
+
+      if (data.length > 0) {
+        switch (option) {
+          case 'budget':
+            clearNode('budget/' + uid).then(processBudget(data, uid));
+            break;
+
+          case 'categories':
+            clearNode('category/' + uid).then(processCategories(data, uid));
+            break;
+        }
+      }
+    });
+
+    $('#import-transactions button').on('click', function() {
+      var file = $('#import-transactions__data')[0].files[0];
+      var result = csvFileToJSON(file);
+
+      result.then(function(data) {
+
+        // Check for bad data at the end of the array.
+        // This happens when the last row is a blank line.
+        // TODO find a better way to do this.
+        if (data[data.length - 1].Date === '') {
+          data.pop();
+        }
+
+        clearNode('transaction/' + uid).then(processTransactions(data, uid));
+      });
+    });
+
+    $('#share button').on('click', function(e) {
+      e.preventDefault();
+      var email = $('#share__email').val();
+
+      writeShareEmail(email, uid);
+    })
+  } 
+});
+
+
 // ref: http://stackoverflow.com/a/1293163/2343
 // This will parse a delimited string into an array of
 // arrays. The default delimiter is the comma, but this
@@ -115,67 +181,3 @@ function csvFileToJSON(file) {
     reader.readAsText(file);
   });
 }
-
-
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    var uid = user.uid;    var uid = user.uid;
-
-    var masquerade = sessionStorage.getItem('masquerade');
-    if (masquerade) {
-      uid = masquerade;
-    }
-    
-    $('#import button').on('click', function() {
-      var data = $('#import__data').val(),
-          option = $('#import__option').val();
-
-      try {
-        data = JSON.parse(data);
-      } catch (e) {
-        showError('Import was not successful: ' + e.message);
-        data = [];
-      }
-
-      if (data.length > 0) {
-        switch (option) {
-          case 'budget':
-            clearNode('budget/' + uid).then(processBudget(data, uid));
-            break;
-
-          case 'categories':
-            clearNode('category/' + uid).then(processCategories(data, uid));
-            break;
-
-          case 'transactions':
-            clearNode('transaction/' + uid).then(processTransactions(data, uid));
-            break;
-        }
-      }
-    });
-
-    $('#import-transactions button').on('click', function() {
-      var file = $('#import-transactions__data')[0].files[0];
-      var result = csvFileToJSON(file);
-
-      result.then(function(data) {
-
-        // Check for bad data at the end of the array.
-        // This happens when the last row is a blank line.
-        // TODO find a better way to do this.
-        if (data[data.length - 1].Date === '') {
-          data.pop();
-        }
-
-        clearNode('transaction/' + uid).then(processTransactions(data, uid));
-      });
-    });
-
-    $('#share button').on('click', function(e) {
-      e.preventDefault();
-      var email = $('#share__email').val();
-
-      writeShareEmail(email, uid);
-    })
-  } 
-});

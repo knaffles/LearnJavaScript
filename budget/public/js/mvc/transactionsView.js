@@ -249,18 +249,19 @@ TransactionsView.prototype = {
     $('#transactions tbody').html('');
 
     $(dataSet).each(function(key, val) {
-      var row = $('<tr></tr>');
+      var row = $('<tr></tr>'),
+          amount = val.Amount;
 
       // var amount = rmatData(val.Amount);
 
       if (val['Transaction Type'] == 'credit') {
-        val.Amount = -1 * val.Amount;
+        amount = -1 * amount;
       }
 
       row.append('<td>' + val.Date + '</td>');
       row.append('<td>' + val.Description + '</td>');
       row.append('<td>' + val.Notes + '</td>');
-      row.append('<td>' + formatData(val.Amount) + '</td>');
+      row.append('<td>' + formatData(amount) + '</td>');
       
       row.appendTo('#transactions tbody');
     })

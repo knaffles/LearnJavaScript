@@ -67,11 +67,6 @@ var categoryLookup = {
   }
 };
 
-var table = {
-
-
-};
-
 function buildCategoryLink(category, fullCategory, month, year) {
   var url = '/transactions/' + cleanMe(category) + '/' + month + '/' + year;
   var urlYTD = url + '/ytd';

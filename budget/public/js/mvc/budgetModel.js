@@ -1,4 +1,4 @@
-var BudgetModel = function (transactionsModel) {
+var BudgetModel = function(transactionsModel) {
 
   this.rows = [];
   this.categories = [],
