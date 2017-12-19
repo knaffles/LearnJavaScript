@@ -63,6 +63,19 @@ function cleanTransaction(entry) {
   return entry;
 }
 
+// Parse dates.
+function parseDate(dateString) {
+  var month = dateString.split('/')[0],
+      year = dateString.split('/')[2];
+
+  var result = {
+    month: parseInt(month),
+    year:  parseInt(year)
+  }
+
+  return result;
+}
+
 // Save to firebase.
 function writeCategory(data, uid) {
   database.ref('category/' + uid + '/' + encodeURIComponent(data.Category)).set({
@@ -84,10 +97,13 @@ function writeBudget(data, uid) {
 
 // Save to firebase.
 function writeTransaction(data, reference) {
-  var newTransactionRef = reference.push();
+  var newTransactionRef = reference.push(),
+      parsedDate        = parseDate(data.Date);
 
   newTransactionRef.set({
-    Date: data.Date,
+    Date:                   data.Date,
+    Year:                   parsedDate.year,
+    Month:                  parsedDate.month,
     Description:            data.Description,
     'Original Description': data['Original Description'],
     Amount:                 data.Amount,

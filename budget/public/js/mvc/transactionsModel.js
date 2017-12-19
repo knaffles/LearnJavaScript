@@ -49,10 +49,17 @@ TransactionsModel.prototype = {
 
   getTransactionsInMonthYear: function(category, month, year) {
     var dataSet = this.rows.filter(function(transaction) {
-      var parsedDate     = parseDate(transaction['Date']),
-          thisMonth      = parsedDate.month,
-          thisYear       = parsedDate.year,
+      var thisMonth      = transaction.Month,
+          thisYear       = transaction.Year,
           categoryFamily = [category];
+
+      if (
+        thisYear              != year  ||
+        thisMonth             != month ||
+        transaction.Labels    ==  'Business Expenses' // TODO make this more flexible
+      ) {
+        return false;
+      }
 
       // Is the category a parent (top-level)?
       // If so, get all of its children, and when testing the categories below,
@@ -67,12 +74,7 @@ TransactionsModel.prototype = {
         categoryFamily = categoryFamily.concat(children); 
       }
 
-      if (
-        categoryFamily.indexOf(transaction.Category) > -1 &&
-        thisMonth             == month &&
-        thisYear              == year  &&
-        transaction.Labels    !=  'Business Expenses' // TODO make this more flexible
-      ) {
+      if (categoryFamily.indexOf(transaction.Category) > -1) {
         return true;
       }
     });

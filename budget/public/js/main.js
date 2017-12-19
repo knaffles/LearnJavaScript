@@ -123,18 +123,6 @@ function getFilters($form) {
   return filters;
 }
 
-function parseDate(dateString) {
-  var month = dateString.split('/')[0],
-      year = dateString.split('/')[2];
-
-  var result = {
-    month: parseInt(month),
-    year:  parseInt(year)
-  }
-
-  return result;
-}
-
 function showError(error) {
   var errorString = '<div class="alert">' + error + '</div>';
   $('body').prepend(errorString);
