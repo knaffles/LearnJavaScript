@@ -1,4 +1,4 @@
-var thisYear = 2019;
+var thisYear = 2020;
 
 var categoryLookup = {
   categories: [],
